@@ -3,7 +3,8 @@
 
 // Zona de  importacion de modulos
 import connection from './src/db/conexion.js';
-import {menuPrincipal, gestorIngredientes, esperarTecla}  from './src/cli/menus.js';
+import {menuPrincipal, esperarTecla}  from './src/cli/menus.js';
+import {gestionarIngrediente}  from './src/services/ingredientesService.js';
 
 // Codigo principal de ejecucion:
 
@@ -31,9 +32,9 @@ async function main() {
         await esperarTecla()
         break;
       case '5':
-        await gestorIngredientes()
-        console.log('Se iniciara Menu de: Gestion de Ingredientes')
-        await esperarTecla()
+        await gestionarIngrediente()
+        // console.log('Se iniciara Menu de: Gestion de Ingredientes')
+        // await esperarTecla()
         break;
       case '6':
         salir = true;
@@ -48,4 +49,4 @@ main();
 
 
 // Prueba de conexion a BD
-connection();
+// connection();
