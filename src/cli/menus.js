@@ -155,6 +155,36 @@ async function gestorClientes() {
   return opcion;
 }
 
+// Menu Gestion de Repartidores
+async function gestorRepartidores() {
+  console.clear() // Borrar consola para mejor visualizacion
+  const titulo = chalk.bold.cyan('🛵 Menu Gestion de Repartidores') 
+  const linea = chalk.gray('────────────────────────────────────────────')
+  console.log(boxen(titulo, {
+    padding: 1,
+    margin: 1,
+    borderStyle: 'round',
+    borderColor: 'green',
+    align: 'center'
+  }))
+  console.log(linea)
+  const { opcion } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'opcion',
+      message: 'Selecciona una opción:',
+      choices: [
+        { name: chalk.green('1. Crear Repartidor'), value: '1' },
+        { name: chalk.blue('2. Modificar Repartidor'), value: '2' },
+        { name: chalk.yellow('3. Listar Repartidores'), value: '3' },
+        { name: chalk.red('4. Eliminar Repartidor'), value: '4' },
+        { name: chalk.gray('5. Volver al menu anterior'), value: '5' }
+      ]
+    }
+  ]);
+  return opcion;
+}
+
 // Funcion para precionar tecla para continuar
 async function esperarTecla() {
   await inquirer.prompt([
@@ -167,4 +197,4 @@ async function esperarTecla() {
 }
 
 
-export { menuPrincipal, gestorAdministrador, gestorIngredientes, gestorPizzas, gestorClientes, esperarTecla };
+export { menuPrincipal, gestorAdministrador, gestorIngredientes, gestorPizzas, gestorClientes, gestorRepartidores, esperarTecla };

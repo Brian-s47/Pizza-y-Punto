@@ -3,10 +3,11 @@ import inquirer from 'inquirer';
 import _ from 'lodash';
 
 // Zona de importacion de modulos
-import { gestorAdministrador, esperarTecla}  from '../cli/menus.js'
-import { gestionarPizzas } from '../services/pizzasService.js'
-import { gestionarIngrediente } from '../services/ingredientesService.js'
-import { gestionarCliente } from '../services/clientesService.js'
+import { gestorAdministrador, esperarTecla}  from '../cli/menus.js';
+import { gestionarPizzas } from '../services/pizzasService.js';
+import { gestionarIngrediente } from '../services/ingredientesService.js';
+import { gestionarCliente } from '../services/clientesService.js';
+import { gestionarRepartidores } from '../services/repartidoresService.js'
 
 // Funciones generales
 // Solicitar datos
@@ -26,8 +27,9 @@ async function gestionAdministrador() {
             // await esperarTecla()
             break;
         case '3':
-            console.log('Se iniciara Menu de: Gestion de Repartidores')
-            await esperarTecla()
+            await gestionarRepartidores()
+            // console.log('Se iniciara Menu de: Gestion de Repartidores')
+            // await esperarTecla()
             break;
         case '4':
             await gestionarPizzas()
