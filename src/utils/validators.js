@@ -18,3 +18,4 @@ export function validarNumeroPositivo(input) {
     if (value < 0) return chalk.red('❌ El número no puede ser negativo. ❌');
     return true;
 }
+

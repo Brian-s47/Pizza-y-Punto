@@ -26,6 +26,33 @@ async function menuPrincipal() {
       name: 'opcion',
       message: 'Selecciona una opción:',
       choices: [
+        { name: chalk.green('1. Menu de Gestion de Administrador'), value: '1' },
+        { name: chalk.blue('2. Menu de Gestion de Empleado'), value: '2' },
+        { name: chalk.gray('3. Salir del sistema de gestion'), value: '3' }
+      ]
+    }
+  ]);
+  return opcion;
+}
+// Menu Administrador
+async function gestorAdministrador() {
+  console.clear() // Borrar consola para mejor visualizacion
+  const titulo = chalk.bold.cyan('📋 Menu Gestor Administrador Pizzeria: "Pizza y Punto"') 
+  const linea = chalk.gray('────────────────────────────────────────────')
+  console.log(boxen(titulo, {
+    padding: 1,
+    margin: 1,
+    borderStyle: 'round',
+    borderColor: 'green',
+    align: 'center'
+  }))
+  console.log(linea)
+  const { opcion } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'opcion',
+      message: 'Selecciona una opción:',
+      choices: [
         { name: chalk.green('1. Gestion de Pedidos'), value: '1' },
         { name: chalk.blue('2. Gestion de Clientes'), value: '2' },
         { name: chalk.yellow('3. Gestion de Repartidores'), value: '3' },
@@ -68,6 +95,37 @@ async function gestorIngredientes() {
   return opcion;
 }
 
+// Menu Gestion de Pizzas
+async function gestorPizzas() {
+  console.clear() // Borrar consola para mejor visualizacion
+  const titulo = chalk.bold.cyan('🍕 Menu Gestion de Pizzas') 
+  const linea = chalk.gray('────────────────────────────────────────────')
+  console.log(boxen(titulo, {
+    padding: 1,
+    margin: 1,
+    borderStyle: 'round',
+    borderColor: 'green',
+    align: 'center'
+  }))
+  console.log(linea)
+  const { opcion } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'opcion',
+      message: 'Selecciona una opción:',
+      choices: [
+        { name: chalk.green('1. Crear Pizza'), value: '1' },
+        { name: chalk.blue('2. Modificar Pizza'), value: '2' },
+        { name: chalk.yellow('3. Listar Pizzas'), value: '3' },
+        { name: chalk.red('4. Eliminar Pizza'), value: '4' },
+        { name: chalk.gray('5. Volver al menu anterior'), value: '5' }
+      ]
+    }
+  ]);
+  return opcion;
+}
+
+// Funcion para precionar tecla para continuar
 async function esperarTecla() {
   await inquirer.prompt([
     {
@@ -78,4 +136,5 @@ async function esperarTecla() {
   ]);
 }
 
-export { menuPrincipal, gestorIngredientes, esperarTecla };
+
+export { menuPrincipal, gestorAdministrador, gestorIngredientes, gestorPizzas, esperarTecla };

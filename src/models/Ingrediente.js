@@ -49,7 +49,7 @@ class Ingrediente {
     );
     }
 
-    // Eliminar Tarea
+    // Eliminar Ingrediente
     static async deleteIngrediente(id){
         const db = await connection();
         const coleccion = db.collection('ingredientes');

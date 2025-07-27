@@ -1,7 +1,5 @@
 // Zona de importacion de librerias
 import inquirer from 'inquirer';
-import chalk from 'chalk';
-import boxen from 'boxen';
 import _ from 'lodash';
 
 // Zona de importacion de modulos
@@ -47,33 +45,33 @@ async function gestionarIngrediente() {
     while (!salir) {
     const opcion = await gestorIngredientes();
 
-    switch (opcion) {
-        case '1':
-        const datosIngrediente = await solictarDatosIngrediente();
-        await crearIngrediente(datosIngrediente.nombre, datosIngrediente.tipo, datosIngrediente.stock);
-        // console.log('Se iniciara Menu de: Crear Ingrediente');
-        //await esperarTecla();
-        break;
-        case '2':
-        await editarIngrediente();
-        // console.log('Se iniciara Menu de: Modificar Ingrediente');
-        // await esperarTecla();
-        break;
-        case '3':
-        await listarIngrediente();
-        // console.log('Se iniciara Menu de: Listar Ingredientes');
-        // await esperarTecla();
-        break;
-        case '4':
-        await eliminarIngrediente();
-        // console.log('Se iniciara Menu de: Eliminar Ingredientes');
-        // await esperarTecla();
-        break;
-        case '5':
-        salir = true;
-        console.log('🛠️Esta volviendo al menu anterior🛠️');
-        break;
-    }
+        switch (opcion) {
+            case '1':
+            const datosIngrediente = await solictarDatosIngrediente();
+            await crearIngrediente(datosIngrediente.nombre, datosIngrediente.tipo, datosIngrediente.stock);
+            // console.log('Se iniciara Menu de: Crear Ingrediente');
+            //await esperarTecla();
+            break;
+            case '2':
+            await editarIngrediente();
+            // console.log('Se iniciara Menu de: Modificar Ingrediente');
+            // await esperarTecla();
+            break;
+            case '3':
+            await listarIngrediente();
+            // console.log('Se iniciara Menu de: Listar Ingredientes');
+            // await esperarTecla();
+            break;
+            case '4':
+            await eliminarIngrediente();
+            // console.log('Se iniciara Menu de: Eliminar Ingredientes');
+            // await esperarTecla();
+            break;
+            case '5':
+            salir = true;
+            console.log('🛠️Esta volviendo al menu anterior🛠️');
+            break;
+        }
     }
 }
 
