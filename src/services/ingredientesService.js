@@ -50,7 +50,7 @@ async function gestionarIngrediente() {
     switch (opcion) {
         case '1':
         const datosIngrediente = await solictarDatosIngrediente();
-        await crearIngrediente(datosIngrediente.id, datosIngrediente.nombre, datosIngrediente.tipo, datosIngrediente.stock);
+        await crearIngrediente(datosIngrediente.nombre, datosIngrediente.tipo, datosIngrediente.stock);
         // console.log('Se iniciara Menu de: Crear Ingrediente');
         //await esperarTecla();
         break;
@@ -66,8 +66,8 @@ async function gestionarIngrediente() {
         break;
         case '4':
         await eliminarIngrediente();
-        console.log('Se iniciara Menu de: Eliminar Ingredientes');
-        await esperarTecla();
+        // console.log('Se iniciara Menu de: Eliminar Ingredientes');
+        // await esperarTecla();
         break;
         case '5':
         salir = true;

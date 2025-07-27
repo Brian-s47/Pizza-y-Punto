@@ -58,7 +58,7 @@ async function editarIngrediente(){
     {
         type: 'list',
         name: 'id',
-        message: 'Selecciona un ingrediente para Elimiar:',
+        message: 'Selecciona un ingrediente para Editar:',
         choices: ingredientes.map(ingrediente => ({ name: ingrediente.nombre, value: ingrediente._id }))
     }
     ]);
@@ -71,7 +71,24 @@ async function editarIngrediente(){
 
 // Eliminar ingredientes
 async function eliminarIngrediente(){
-
+    // Obtenermos los ingredientes actuales
+    const ingredientes = await Ingrediente.getIngredientes()
+    // Validacion de que si exista almenos un ingrediente registrado
+    if (ingredientes.length === 0) {
+        console.log(chalk.yellow('⚠️ No se tienen ingredientes registrados ⚠️'));
+        return;
+    }
+    const { id } = await inquirer.prompt([
+    {
+        type: 'list',
+        name: 'id',
+        message: 'Selecciona un ingrediente para Eliminar:',
+        choices: ingredientes.map(ingrediente => ({ name: ingrediente.nombre, value: ingrediente._id }))
+    }
+    ]);
+    await Ingrediente.deleteIngrediente(id);
+    console.log(chalk.red('🗑️ Se Elimino el ingrediente correctamente 🗑️'));
+    await esperarTecla();
 };
 
 

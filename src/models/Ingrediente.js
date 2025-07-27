@@ -6,13 +6,8 @@ import connection from '../db/conexion.js' // Modulo de conexion a BD
 
 // Creacion de Clase
 class Ingrediente {
-    constructor (id, nombre, tipo, stock){
-        // Validador de clase abstracta
-        if(this.constructor === Ingrediente){
-            throw new Error(`El objeto enviado no es de tipo "Ingrediente"`);
-        }
+    constructor (nombre, tipo, stock){
         //Atributos generales
-        this.id = id; // Id generado por MongoDB al registrarlo
         this.nombre = nombre; // Debe ser de tipo string
         this.tipo = tipo; // Debe ser de tipo string
         this.stock = stock; // Debe ser de tipo number
@@ -35,12 +30,14 @@ class Ingrediente {
     }
 
     // Seters
+
+    // Agregar un Ingrediente
     // Actualizar datos de un ingrediente
     static async setIngrediente(id, nombre, tipo, stock){
         const db = await connection();
         const coleccion = db.collection('ingredientes');
 
-        const resultado = await coleccion.updateOne(
+        await coleccion.updateOne(
         { _id: new ObjectId(id) }, // Buscamos el ingrediente por Id
         {
             $set: {
@@ -50,8 +47,14 @@ class Ingrediente {
             }
         }
     );
+    }
 
-    return resultado.modifiedCount > 0; 
+    // Eliminar Tarea
+    static async deleteIngrediente(id){
+        const db = await connection();
+        const coleccion = db.collection('ingredientes');
+
+        coleccion.deleteOne({_id: new ObjectId(id)});
     }
 
 }
