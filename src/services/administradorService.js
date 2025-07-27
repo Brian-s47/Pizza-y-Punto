@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { gestorAdministrador, esperarTecla}  from '../cli/menus.js'
 import { gestionarPizzas } from '../services/pizzasService.js'
 import { gestionarIngrediente } from '../services/ingredientesService.js'
+import { gestionarCliente } from '../services/clientesService.js'
 
 // Funciones generales
 // Solicitar datos
@@ -20,8 +21,9 @@ async function gestionAdministrador() {
             await esperarTecla()
             break;
         case '2':
-            console.log('Se iniciara Menu de: Gestion de Clientes')
-            await esperarTecla()
+            await gestionarCliente()
+            // console.log('Se iniciara Menu de: Gestion de Clientes')
+            // await esperarTecla()
             break;
         case '3':
             console.log('Se iniciara Menu de: Gestion de Repartidores')

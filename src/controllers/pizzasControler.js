@@ -27,6 +27,7 @@ async function listarPizza(){
     // Validacion si existen Pizzas
     if(pizzas.lenhgth === 0){
         console.log(`No se tienen Pizzas registradas`); // Mensaje de error no existen Pizzas en la BD
+        await esperarTecla();
     } else{
         const titulo = chalk.bold.cyan('📋 Listado de Pizzas') 
           console.log(boxen(titulo, {

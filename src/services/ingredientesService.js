@@ -3,9 +3,9 @@ import inquirer from 'inquirer';
 import _ from 'lodash';
 
 // Zona de importacion de modulos
-import {gestorIngredientes, esperarTecla}  from '../cli/menus.js'
-import {crearIngrediente, listarIngrediente, editarIngrediente, eliminarIngrediente}  from '../controllers/ingredientesControler.js'
-import { validarTextoNoVacio, validarNumeroPositivo } from '../utils/validators.js';
+import { gestorIngredientes}  from '../cli/menus.js'
+import { crearIngrediente, listarIngredientes, editarIngrediente, eliminarIngrediente}  from '../controllers/ingredientesControler.js'
+import { validarTextoNoVacioNiSimbolos, validarNumeroPositivo } from '../utils/validators.js';
 
 // Funciones generales
 // Solicitar datos
@@ -58,7 +58,7 @@ async function gestionarIngrediente() {
             // await esperarTecla();
             break;
             case '3':
-            await listarIngrediente();
+            await listarIngredientes();
             // console.log('Se iniciara Menu de: Listar Ingredientes');
             // await esperarTecla();
             break;

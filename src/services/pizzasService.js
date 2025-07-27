@@ -6,7 +6,7 @@ import _ from 'lodash';
 import Ingrediente from '../models/Ingrediente.js';
 import { gestorPizzas, esperarTecla}  from '../cli/menus.js'
 import { crearPizza, editarPizza, listarPizza,  eliminarPizza}  from '../controllers/pizzasControler.js'
-import { validarTextoNoVacio, validarNumeroPositivo } from '../utils/validators.js';
+import { validarTextoNoVacioNiSimbolos, validarNumeroPositivo } from '../utils/validators.js';
 
 // Funciones generales
 // Solicitar datos

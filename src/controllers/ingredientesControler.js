@@ -21,12 +21,13 @@ async function crearIngrediente(id, nombre, tipo, stock){
 }   
 
 // Listar ingredientes
-async function listarIngrediente(){
+async function listarIngredientes(){
     // Obtenermos los ingredientes actuales
     const ingredientes = await Ingrediente.getIngredientes()
     // Validacion si existen ingredientes
     if(ingredientes.lenhgth === 0){
         console.log(`No se tienen ingredientes registrados`); // Mensaje de error no existen ingredientes
+        await esperarTecla();
     } else{
         const titulo = chalk.bold.cyan('📋 Listado de ingredientes') 
           console.log(boxen(titulo, {
@@ -93,4 +94,4 @@ async function eliminarIngrediente(){
 
 
 
-export { crearIngrediente, listarIngrediente, editarIngrediente, eliminarIngrediente };
+export { crearIngrediente, listarIngredientes, editarIngrediente, eliminarIngrediente };
