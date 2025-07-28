@@ -4,7 +4,8 @@
 // Zona de  importacion de modulos
 import connection from './src/db/conexion.js';
 import {menuPrincipal, esperarTecla}  from './src/cli/menus.js';
-import {gestionarIngrediente}  from './src/services/ingredientesService.js';
+import {gestionAdministrador} from './src/services/administradorService.js'
+
 
 // Codigo principal de ejecucion:
 
@@ -12,36 +13,25 @@ async function main() {
   let salir = false;
 
   while (!salir) {
-    const opcion = await menuPrincipal();
-
-    switch (opcion) {
+    const opcionPrincipal = await menuPrincipal();
+    switch (opcionPrincipal) { 
       case '1':
-        console.log('Se iniciara Menu de: Gestion de Pedidos')
-        await esperarTecla()
+        await gestionAdministrador();
+        // console.log('Menu de Gestion de Empleado')
+        // await esperarTecla()
         break;
       case '2':
-        console.log('Se iniciara Menu de: Gestion de Clientes')
+        console.log('Menu de Gestion de Empleado')
         await esperarTecla()
         break;
       case '3':
-        console.log('Se iniciara Menu de: Gestion de Repartidores')
-        await esperarTecla()
-        break;
-      case '4':
-        console.log('Se iniciara Menu de: Gestion de Pizzas')
-        await esperarTecla()
-        break;
-      case '5':
-        await gestionarIngrediente()
-        // console.log('Se iniciara Menu de: Gestion de Ingredientes')
-        // await esperarTecla()
-        break;
-      case '6':
         salir = true;
         console.log('🍕 Esta saliendo del sistema de gestion de la Pizeria: "Pizza y Punto" 🍕');
         await esperarTecla()
         exit;
     }
+
+
   }
 }
 
