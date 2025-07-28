@@ -6,7 +6,7 @@ import {MongoClient} from 'mongodb'; // Importacion de libreria de MongoDB
 dotenv.config();
 // Variable uri para control de conexion con db por medio de mongo
 const uri = process.env.MONGO_URI
-const nombreDB = "Pizza y Punto"; // nombre de la DB
+const nombreDB = "Pizza_y_Punto"; // nombre de la DB
 const cliente = new MongoClient(uri); // creacion de cliente segun "uri"
 
 // Funcion para coneccion a BD
@@ -20,3 +20,5 @@ export default async function connection() {
         process.exit(1); // Detiene el programa de forma controlada
     }
 }
+// Export Cliente
+export { cliente };
