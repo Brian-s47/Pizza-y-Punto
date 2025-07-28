@@ -4,17 +4,78 @@ import chalk from 'chalk';
 import boxen from 'boxen';
 
 // Zona de importacion de modulos
+import { cliente } from '../db/conexion.js';
 import Pedido from '../models/Pedido.js';
 import connection from '../db/conexion.js'
-import {esperarTecla}  from '../cli/menus.js'
-import {solictarDatosPedido} from '../services/pedidosService.js'
+import { esperarTecla }  from '../cli/menus.js'
+import { solictarDatosPedido } from '../services/pedidosService.js'
 
 // Zona de Funciones de servicios
 
-// Crear un Pedido
-async function realizarPedido(){
-    const total = pizzasSeleccionadas.reduce((acum, pizza) => acum + pizza.precio, 0);
+// Realizar pedido (Transaccion)
+
+async function realizarPedido({ clienteId, pizzas, total, repartidorId }) {
+  const session = client.startSession();
+  try {
+    await session.withTransaction(async () => {
+      const db = client.db("Pizza y Punto");
+
+      // 1. Validar stock y acumular ingredientes
+      const pizzasDocs = await db.collection('pizzas')
+        .find({ _id: { $in: pizzas.map(p => p.pizzaId) } })
+        .toArray();
+
+      const ingredientesRequeridos = {};
+
+      for (const { pizzaId, cantidad } of pizzas) {
+        const pizza = pizzasDocs.find(p => p._id.toString() === pizzaId.toString());
+        pizza.ingredientes.forEach(idIng => {
+          const id = idIng.toString();
+          ingredientesRequeridos[id] = (ingredientesRequeridos[id] || 0) + cantidad;
+        });
+      }
+
+      // 2. Verificar y restar stock
+      for (const [id, cantidad] of Object.entries(ingredientesRequeridos)) {
+        const ingrediente = await db.collection('ingredientes').findOne({ _id: new ObjectId(id) }, { session });
+        if (!ingrediente || ingrediente.stock < cantidad) {
+          throw new Error(`Ingrediente insuficiente: ${ingrediente?.nombre || id}`);
+        }
+
+        await db.collection('ingredientes').updateOne(
+          { _id: new ObjectId(id) },
+          { $inc: { stock: -cantidad } },
+          { session }
+        );
+      }
+
+      // 3. Crear pedido
+      await db.collection('pedidos').insertOne({
+        clienteId: new ObjectId(clienteId),
+        pizzas: pizzas.map(p => ({ pizzaId: p.pizzaId, cantidad: p.cantidad })),
+        total,
+        fecha: new Date(),
+        repartidorAsignado: new ObjectId(repartidorId)
+      }, { session });
+
+      // 4. Marcar repartidor como ocupado
+      await db.collection('repartidores').updateOne(
+        { _id: new ObjectId(repartidorId) },
+        { $set: { estado: "ocupado" } },
+        { session }
+      );
+    });
+
+    console.log("✅ Pedido procesado correctamente");
+
+  } catch (error) {
+    console.error("❌ Error en transacción:", error.message);
+    await session.abortTransaction();
+  } finally {
+    await session.endSession();
+  }
 }
+
 // Crear un Pedido
 async function crearPedido(clienteId, total, pizzas, repartidorId){
     const pedido = new Pedido(clienteId, total, pizzas, repartidorId) // Instanciamos pedido
@@ -106,4 +167,5 @@ async function eliminarPedido(){
 
 
 
-export { crearPedido, listarPedidos, editarPedido, eliminarPedido };
+
+export { realizarPedido, crearPedido, listarPedidos, editarPedido, eliminarPedido };

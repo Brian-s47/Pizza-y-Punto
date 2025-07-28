@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb'; // Para obtener el id generado por MongoDB
 
 // Zona de importacion de modulos
 import connection from '../db/conexion.js' // Modulo de conexion a BD
-import { times } from 'lodash';
+import _ from 'lodash';
 
 // Creacion de Clase
 class Pedido {
@@ -12,7 +12,7 @@ class Pedido {
         this.clienteId = clienteId; // Debe ser de tipo string
         this.pizzas = [pizzas]; // Array vacio para asignar las pizzas seleccionadas
         this.total = total; // Debe ser de tipo number
-        this.fecha = Date(times); // Debe ser de tipo number
+        this.fecha = new Date(); // Debe ser de tipo number
         this.repartidorAsignado = repartidorId; // repartidor asignado
         this.estado = false; // Estado del pedido por defecto pendiente Entrega = False
     }

@@ -49,9 +49,9 @@ async function listarRepartidores(){
 // Editar clientes
 async function editarRepartidor(){
     // Obtenermos los Repartidores actuales
-    const repartidores = await Repartidor.getClientes()
+    const repartidores = await Repartidor.getRepartidores()
     // Validacion de que si exista almenos un Repartidor registrado
-    if (clientes.length === 0) {
+    if (repartidores.length === 0) {
         console.log(chalk.yellow('⚠️ No se tienen Repartidores registrados ⚠️'));
         return;
     }
@@ -65,7 +65,7 @@ async function editarRepartidor(){
     ]);
 
     const nuevosDatos= await solictarDatosRepartidor()
-    await Repartidor.setRepartidor(nuevosDatos.nombre, nuevosDatos.zona);
+    await Repartidor.setRepartidores(nuevosDatos.nombre, nuevosDatos.zona);
     console.log(chalk.blue('✏️ Se modifico el Repartidor correctamente ✏️'));
     await esperarTecla();
 }

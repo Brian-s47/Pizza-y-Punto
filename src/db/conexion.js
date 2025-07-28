@@ -20,3 +20,5 @@ export default async function connection() {
         process.exit(1); // Detiene el programa de forma controlada
     }
 }
+// Export Cliente
+export { cliente };

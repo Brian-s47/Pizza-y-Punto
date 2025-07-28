@@ -3,13 +3,10 @@ import inquirer from 'inquirer';
 import _ from 'lodash';
 
 // Zona de importacion de modulos
-import Pedido from '../models/Pedido.js';
 import Repartidor from '../models/Repartidor.js';
 import Cliente from '../models/Cliente.js';
-import Pizza from '../models/Pizza.js';
-import Ingrediente from '../models/Ingrediente.js';
-import { gestorPedidos, esperarTecla}  from '../cli/menus.js'
-import { crearPedido, editarPedido, listarPedidos, eliminarPedido }  from '../controllers/pedidosControler.js'
+import { gestorPedidos}  from '../cli/menus.js'
+import { realizarPedido, editarPedido, listarPedidos, eliminarPedido }  from '../controllers/pedidosControler.js'
 import { getPizzasDisponibles }  from '../utils/gettersMultiplesBD.js'
 
 // Funciones generales
@@ -73,7 +70,7 @@ async function gestionarPedidos() {
         switch (opcion) {
             case '1':
             const datosPedido = await solictarDatosPedido();
-            await crearPedido(datosPedido.clienteId, datosPedido.pizzas, datosPedido.repartidorId);
+            await realizarPedido(datosPedido.clienteId, datosPedido.pizzas, datosPedido.total, datosPedido.repartidorId);
             // console.log('Se iniciara Menu de: Crear Pedido');
             //await esperarTecla();
             break;
@@ -99,7 +96,6 @@ async function gestionarPedidos() {
         }
     }
 }
-
 
 
 export { gestionarPedidos, solictarDatosPedido };

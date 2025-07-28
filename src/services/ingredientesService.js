@@ -15,7 +15,7 @@ async function solictarDatosIngrediente() {
             type: 'input',
             name: 'nombre',
             message: 'Nombre del Ingrediente:',
-            validate: validarTextoNoVacio
+            validate: validarTextoNoVacioNiSimbolos
         },
         {
             type: 'list',
