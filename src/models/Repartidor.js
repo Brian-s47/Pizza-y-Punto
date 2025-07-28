@@ -28,6 +28,17 @@ class Repartidor {
         const coleccion = db.collection('repartidores');
         return await coleccion.findOne({ _id: new ObjectId(id) });
     }
+    // Obtener Repartidores Disponibles
+    static async getRepartidoresDisponibles(){
+        const repartidoresActuales = await getRepartidores();
+        const repartidoresDisponibles = repartidoresActuales
+            .filter(rep => rep.estado === true)
+            .map(rep => ({
+            name: `${rep.nombre} - Zona: (${rep.zona}) `,
+            value: rep.nombre
+        }));
+        return repartidoresDisponibles
+    }
 
     // Seters
 
