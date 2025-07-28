@@ -5,60 +5,82 @@ import _ from 'lodash';
 // Zona de importacion de modulos
 import Repartidor from '../models/Repartidor.js';
 import Cliente from '../models/Cliente.js';
-import { gestorPedidos}  from '../cli/menus.js'
-import { realizarPedido, editarPedido, listarPedidos, eliminarPedido }  from '../controllers/pedidosControler.js'
-import { getPizzasDisponibles }  from '../utils/gettersMultiplesBD.js'
+import Pizza from '../models/Pizza.js';
+import { gestorPedidos, esperarTecla}  from '../cli/menus.js';
+import { realizarPedido, editarPedido, listarPedidos, eliminarPedido }  from '../controllers/pedidosControler.js';
+import { getPizzasDisponibles }  from '../utils/gettersMultiplesBD.js';
 
 // Funciones generales
 // Solicitar datos
 async function solictarDatosPedido() {
-    // Seleccion de cliente
-    const clientesActuales = await Cliente.getClientes();
-    const clienteSeleccionado = await inquirer.prompt({ 
-        type: 'list',
-        name: 'clienteId',
-        message: 'Cliente:',
-        choices: clientesActuales,
-        //validate: // Validar que seleccione al menos una pizza
-    });
-    // Seleccion de tipo de pizzas
-    const pizzasDisponibles = await getPizzasDisponibles();
-    const seleccionPizza = await inquirer.prompt({       
-        type: 'checkbox',
-        name: 'seleccionPizza',
-        message: 'Selecciones las pizzas qeu desea:',
-        choices: pizzasDisponibles
-    });
-    // Creacion de array de pizzas seleccionadas
-    const pizzasSeleccionadas = seleccionPizza.map(id => pizzasDisponibles.find(p => p._id.toString() === id));
-    // Seleccion de cantidad de pizza por tipo seleccionado
-    const cantidades = {};
-    for (const pizza of seleccionPizza) {
-    const { cantidad } = await inquirer.prompt({
-        type: 'number',
-        name: 'cantidad',
-        message: `¿Cuántas unidades deseas de ${pizza.nombre}?`,
-        validate: val => val > 0 || 'Debe ser un número mayor a 0'
-    });
-    cantidades[pizza._id] = cantidad;
-    }
-    // Total de precio de pizzas
-    const total = pizzasSeleccionadas.reduce((sum, p) => sum + (p.precio * cantidades[p._id]), 0);
-    //Filtrado para Repartidores disponibles
-    const repartidoresDisponibles = await Repartidor.getRepartidoresDisponibles();
-    const repartidorSeleccionado = await inquirer.prompt({ 
-        type: 'list',
-        name: 'repartidorId',
-        message: 'Seleccione Repartidor disponible y adecuado a zona de cliente:',
-        choices: repartidoresDisponibles
-    });
+  // Cliente
+  const clientesActuales = await Cliente.getClientes();
+  const { clienteId } = await inquirer.prompt({ 
+    type: 'list',
+    name: 'clienteId',
+    message: 'Cliente:',
+    choices: clientesActuales.map(c => ({
+      name: c.nombre,
+      value: c._id.toString()
+    }))
+  });
 
-    return {
-        clienteSeleccionado,
-        seleccionPizza,
-        total,
-        repartidorSeleccionado
-    };
+  // Pizzas
+  const pizzasDisponibles = await Pizza.getPizzas();
+  if (!pizzasDisponibles.length) {
+    console.log("❌ No hay pizzas disponibles con ingredientes suficientes.");
+    return;
+  }
+
+  const { seleccionPizza } = await inquirer.prompt({       
+    type: 'checkbox',
+    name: 'seleccionPizza',
+    message: 'Selecciones las pizzas que desea:',
+    choices: pizzasDisponibles.map(p => ({
+      name: `${p.nombre} (${p.categoria}) - $${p.precio}`,
+      value: p._id.toString()
+    }))
+  });
+
+  const pizzasSeleccionadas = seleccionPizza.map(id =>
+    pizzasDisponibles.find(p => p._id.toString() === id)
+  );
+
+  const cantidades = {};
+  for (const pizza of pizzasSeleccionadas) {
+    const { cantidad } = await inquirer.prompt({
+      type: 'number',
+      name: 'cantidad',
+      message: `¿Cuántas unidades deseas de ${pizza.nombre}?`,
+      validate: val => val > 0 || 'Debe ser un número mayor a 0'
+    });
+    cantidades[pizza._id.toString()] = cantidad;
+  }
+
+  const total = pizzasSeleccionadas.reduce((sum, p) =>
+    sum + (p.precio * cantidades[p._id.toString()]), 0);
+
+  // Repartidor
+  const repartidoresDisponibles = await Repartidor.getRepartidoresDisponibles();
+  const { repartidorId } = await inquirer.prompt({
+    type: 'list',
+    name: 'repartidorId',
+    message: 'Seleccione repartidor:',
+    choices: repartidoresDisponibles.map(rep => ({
+      name: `${rep.nombre} - Zona: (${rep.zona})`,
+      value: rep._id.toString()
+    }))
+  });
+
+  return {
+    clienteId,
+    pizzas: pizzasSeleccionadas.map(p => ({
+      pizzaId: p._id,
+      cantidad: cantidades[p._id.toString()]
+    })),
+    total,
+    repartidorId
+  };
 }
 // Zona de Funciones de servicios
 async function gestionarPedidos() {
@@ -70,6 +92,11 @@ async function gestionarPedidos() {
         switch (opcion) {
             case '1':
             const datosPedido = await solictarDatosPedido();
+            if (!datosPedido) {
+                console.log("⚠️ No se pudo generar el pedido.");
+                await esperarTecla();
+                return;
+            }
             await realizarPedido(datosPedido.clienteId, datosPedido.pizzas, datosPedido.total, datosPedido.repartidorId);
             // console.log('Se iniciara Menu de: Crear Pedido');
             //await esperarTecla();

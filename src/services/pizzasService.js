@@ -18,7 +18,7 @@ async function solictarDatosPizza() {
         .filter(ing => ing.stock > 0)
         .map(ing => ({
         name: `${ing.nombre} (${ing.tipo}) - Stock: ${ing.stock}`,
-        value: ing.nombre
+        value: ing._id.toString()
     }));
     const { nombre, categoria, precio, ingredientes } = await inquirer.prompt([
         {

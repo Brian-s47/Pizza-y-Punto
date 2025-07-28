@@ -19,7 +19,7 @@ class Cliente {
     // Obtener todos los ingredientes actuales
     static async getClientes(){
         const db = await connection(); // Conectamos con la BD y la traemos
-        const coleccion = db.collection("clientes"); // Traemos la coleccion de clientes de la BD
+        const coleccion = db.collection('clientes'); // Traemos la coleccion de clientes de la BD
         const clientes = await coleccion.find().toArray(); // traemos todos los clientes y los comvertimos en Array
         return clientes;
     }

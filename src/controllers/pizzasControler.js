@@ -2,6 +2,7 @@
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import boxen from 'boxen';
+import { ObjectId } from 'mongodb';
 
 // Zona de importacion de modulos
 import Pizza from '../models/Pizza.js';
@@ -11,46 +12,66 @@ import {solictarDatosPizza} from '../services/pizzasService.js'
 
 // Zona de Funciones de servicios
 // Crear un ingrediente
-async function crearPizza(nombre, categoria, precio, ingredientes){
-    const pizza = new Pizza(nombre, categoria, precio, ingredientes) // Instanciamos pizza
-    const db = await connection(); // Conectamos con la BD y la traemos
-    const coleccion = db.collection("pizzas"); // Traemos la coleccion de Pizzas de la BD
-    await coleccion.insertOne(pizza); // insertamos la nueva pizza creada
-    console.log(`Se a creado correctamente la Pizza ${nombre}`); // Mensaje de correcta creacion de pizza
-    await esperarTecla();
+async function crearPizza(nombre, categoria, precio, ingredientesIds){
+  const db = await connection();
+  const coleccion = db.collection('pizzas');
+
+  const ingredientesObjectId = ingredientesIds.map(id => new ObjectId(id));
+
+  await coleccion.insertOne({
+    nombre,
+    categoria,
+    precio,
+    ingredientes: ingredientesObjectId
+  });
+
+  console.log(`✅ Se creó correctamente la Pizza ${nombre}`);
+  await esperarTecla();
 }   
 
 // Listar Pizzas
-async function listarPizza(){
-    // Obtenermos las pizas actuales
-    const pizzas = await Pizza.getPizzas()
-    // Validacion si existen Pizzas
-    if(pizzas.lenhgth === 0){
-        console.log(`No se tienen Pizzas registradas`); // Mensaje de error no existen Pizzas en la BD
-        await esperarTecla();
-    } else{
-        const titulo = chalk.bold.cyan('📋 Listado de Pizzas') 
-          console.log(boxen(titulo, {
-                padding: 1,
-                margin: 1,
-                borderStyle: 'round',
-                borderColor: 'green',
-                align: 'center'
-            }));
-        const linea = chalk.gray('────────────────────────────────────────────')
-        console.log(titulo)
-        // Convercion para array de ingredientes imprimir correctamente
-        const pizzasVisibles = pizzas.map(({ _id, id, ingredientes, ...rest }) => ({
-            ...rest,
-            ingredientes: Array.isArray(ingredientes)
-            ? ingredientes.join(' , ')
-            : 'Sin ingredientes'
-        }));
+async function listarPizza() {
+  const db = await connection();
 
-        console.table(pizzasVisibles)
-        console.log(linea);
-        await esperarTecla();
+  const pizzas = await db.collection('pizzas').aggregate([
+    {
+      $lookup: {
+        from: 'ingredientes',
+        localField: 'ingredientes',
+        foreignField: '_id',
+        as: 'ingredientes_detalle'
+      }
     }
+  ]).toArray();
+
+  // Validación si existen Pizzas
+  if (pizzas.length === 0) {
+    console.log(`❌ No se tienen Pizzas registradas`);
+    await esperarTecla();
+    return;
+  }
+
+  const titulo = chalk.bold.cyan('📋 Listado de Pizzas');
+  console.log(boxen(titulo, {
+    padding: 1,
+    margin: 1,
+    borderStyle: 'round',
+    borderColor: 'green',
+    align: 'center'
+  }));
+
+  // Preparamos los datos para imprimir en tabla
+  const pizzasVisibles = pizzas.map(({ nombre, categoria, precio, ingredientes_detalle }) => ({
+    nombre,
+    categoria,
+    precio,
+    ingredientes: ingredientes_detalle.length > 0
+      ? ingredientes_detalle.map(ing => ing.nombre).join(', ')
+      : 'Sin ingredientes'
+  }));
+
+  console.table(pizzasVisibles);
+  await esperarTecla();
 }
 
 // Editar Pizzas

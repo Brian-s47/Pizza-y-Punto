@@ -8,13 +8,22 @@ export async function getPizzasDisponibles() {
   const ingredientesActuales = await Ingrediente.getIngredientes();
 
   const pizzasDisponibles = pizzasActuales.filter(pizza => {
-    const ingredientesPizza = pizza.ingredientes;
-    const disponibles = ingredientesPizza.every(idIng => {
-      const ingrediente = ingredientesActuales.find(i => i._id.toString() === idIng.toString());
+    if (!Array.isArray(pizza.ingredientes) || pizza.ingredientes.length === 0) {
+      return false;
+    }
+
+    const disponibles = pizza.ingredientes.every(idIng => {
+      const id = typeof idIng === 'object' && idIng !== null ? idIng._id : idIng;
+      if (!id || !id.toString) return false;
+
+      const ingrediente = ingredientesActuales.find(i => i._id.toString() === id.toString());
       return ingrediente && ingrediente.stock > 0;
     });
+
     return disponibles;
   });
 
   return pizzasDisponibles;
 }
+
+

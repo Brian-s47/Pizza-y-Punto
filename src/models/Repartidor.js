@@ -30,7 +30,8 @@ class Repartidor {
     }
     // Obtener Repartidores Disponibles
     static async getRepartidoresDisponibles(){
-        const repartidoresActuales = await getRepartidores();
+        const db = await connection();
+        const repartidoresActuales = await db.collection('repartidores').find().toArray();
         const repartidoresDisponibles = repartidoresActuales
             .filter(rep => rep.estado === true)
             .map(rep => ({

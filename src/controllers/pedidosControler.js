@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import boxen from 'boxen';
 
 // Zona de importacion de modulos
-import { client } from '../db/conexion.js';
+import { cliente } from '../db/conexion.js';
 import Pedido from '../models/Pedido.js';
 import connection from '../db/conexion.js'
 import { esperarTecla }  from '../cli/menus.js'
@@ -16,18 +16,22 @@ import { ObjectId } from 'mongodb';
 
 // Realizar pedido (Transaccion)
 
-async function realizarPedido({ clienteId, pizzas, total, repartidorId }) {
-  const session = client.startSession(); // creamos sesion para transaccion
+async function realizarPedido(clienteId, pizzas, total, repartidorId) {
+  const session = cliente.startSession(); // creamos sesion para transaccion
+  session.startTransaction();
   const db = await connection(); // Conectamos con la BD y la traemos
   try{
+    console.log("🧾 Paso 1: Cargando pizzas actuales...");
     const pizzasActuales = db.collection('pizzas'); // Traemos todas las pizzas actuales en BD
     // Validacion de Stock de ingredientes para pizzas pedidas
     // Creamos array de pizzas pedidas comparando las pizzas actuales donde el id coincida con el id del mapeo de las pizzas selesccionadas en solicitar datos
     const pizzasActualesPedidas = await pizzasActuales.find({_id: {$in: pizzas.map(p => p.pizzaId)}}).toArray();
+    console.log("✅ Pizzas actuales cargadas:", pizzasActualesPedidas.length);
 
     // Variable para guardar los ingredientes requeridos para estas pizzas como objeto ya que los ingredientes son objetos
     const ingredientesRequeridos = {};
 
+    console.log("🧾 Paso 2: Recorriendo pizzas para calcular ingredientes...");
     // Recorremos las pizzas enviadas su Id y cantidad y por cada pizza actual pedida en inventario
     for (const { pizzaId, cantidad} of pizzas){
       // guardamos cada piza que recorremos donde coincida el _id
@@ -39,8 +43,12 @@ async function realizarPedido({ clienteId, pizzas, total, repartidorId }) {
         ingredientesRequeridos[id] = (ingredientesRequeridos[id] || 0) + cantidad; 
       });
     };
+    console.log("✅ Ingredientes requeridos:", ingredientesRequeridos);
+
+    console.log("🧾 Paso 3: Validando stock de ingredientes...");
     // traemos los ingredientes actuales en BD
-    const ingredientesActuales = db.collection('ingredientes'); // Traemos todos los ingredientes actuales en BD
+    const ingredientesCollection = db.collection('ingredientes');
+    const ingredientesActuales = await ingredientesCollection.find().toArray();
     // Validamos que se tenga stock suficiente
     for (const ing of ingredientesActuales){
       //traemos el requerido
@@ -50,16 +58,27 @@ async function realizarPedido({ clienteId, pizzas, total, repartidorId }) {
         throw new error ('❌ Stock insuficiente para el ingrediente: ${ing.nombre}')
       }
     };
+    console.log("✅ Stock validado correctamente");
+
+    console.log("🧾 Paso 4: Actualizando stock de ingredientes...");
     // Si no tenemos error en la validacion anterior restamos el stock en ingredientes segun se requiera
     // recorremos los ingredientesRequeridos que son un Objeto en un array de arrays mucho mejor para recorre y usar : Object.entries(ingredientesRequeridos)
     for( const [id, cantidad] of Object.entries(ingredientesRequeridos)){
       // actualizamos en BD de ingredientes restando el stock segu cantidad
-      await ingredientesActuales.updateOne(
+      await ingredientesCollection.updateOne(
         { _id: new ObjectId(id)},
         { $inc: {stock: -cantidad}},
         {session}
       )
     };
+    console.log("✅ Ingredientes actualizados");
+    console.log("🧾 Paso 5: Insertando pedido...");
+
+    console.log("💾 Insertando pedido con:", {
+      clienteId,
+      pizzas,
+      repartidorId
+    });
     // insertamos pedido en BD de pedidos
       const pedidoInsertado =await db.collection('pedidos').insertOne({
         clienteId: new ObjectId(clienteId),
@@ -71,21 +90,24 @@ async function realizarPedido({ clienteId, pizzas, total, repartidorId }) {
       fecha: new Date(),
       repartidorAsignado: new ObjectId(repartidorId)
     }, { session });
-
+    console.log("✅ Pedido insertado con ID:", pedidoInsertado.insertedId);
+    
+    console.log("🧾 Paso 6: Actualizando estado del repartidor...");
     // Cambiamos el estado del repatidor a false ya que estara ocupado
     await db.collection('repartidores').updateOne(
       { _id: new ObjectId(repartidorId) },
       { $set: { estado: false } },
       { session }
     );
-
+    
+    console.log("🧾 Paso 7: Referenciando pedido en cliente...");
     // Referenciamos el Id de peiddo en cliente
     await db.collection('clientes').updateOne(
       { _id: new ObjectId(clienteId) },
       { $push: { pedidos: pedidoInsertado.insertedId } },
       { session }
     );
-
+    console.log("🧾 Paso 8: Confirmando transacción...");
     // Mensaje de transaccion completa
     console.log("✅ Pedido procesado correctamente");
     await esperarTecla()
@@ -95,6 +117,7 @@ async function realizarPedido({ clienteId, pizzas, total, repartidorId }) {
     } finally {
       await session.endSession();
     }
+  await esperarTecla()
 };
 
 // Crear un Pedido
