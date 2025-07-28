@@ -45,7 +45,7 @@ class Pizza {
                 nombre: nombre,
                 categoria: categoria,
                 precio: precio,
-                ingredientes: [ingredientes],
+                ingredientes: ingredientes.map(id => new ObjectId(id))
             }
         }
     );

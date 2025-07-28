@@ -7,7 +7,8 @@ import { gestorAdministrador, esperarTecla}  from '../cli/menus.js';
 import { gestionarPizzas } from '../services/pizzasService.js';
 import { gestionarIngrediente } from '../services/ingredientesService.js';
 import { gestionarCliente } from '../services/clientesService.js';
-import { gestionarRepartidores } from '../services/repartidoresService.js'
+import { gestionarRepartidores } from '../services/repartidoresService.js';
+import { gestionarPedidos } from '../services/pedidosService.js'
 
 // Funciones generales
 // Solicitar datos
@@ -18,8 +19,9 @@ async function gestionAdministrador() {
     const opcion = await gestorAdministrador();
         switch (opcion) { 
         case '1':
-            console.log('Se iniciara Menu de: Gestion de Pedidos')
-            await esperarTecla()
+            await gestionarPedidos()
+            // console.log('Se iniciara Menu de: Gestion de Pedidos')
+            // await esperarTecla()
             break;
         case '2':
             await gestionarCliente()

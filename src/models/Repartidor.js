@@ -28,22 +28,33 @@ class Repartidor {
         const coleccion = db.collection('repartidores');
         return await coleccion.findOne({ _id: new ObjectId(id) });
     }
+    // Obtener Repartidores Disponibles
+    static async getRepartidoresDisponibles(){
+        const db = await connection();
+        const repartidoresActuales = await db.collection('repartidores').find().toArray();
+        const repartidoresDisponibles = repartidoresActuales
+            .filter(rep => rep.estado === true)
+            .map(rep => ({
+            name: `${rep.nombre} - Zona: (${rep.zona}) `,
+            value: rep.nombre
+        }));
+        return repartidoresDisponibles
+    }
 
     // Seters
 
     // Agregar un Repartidor
     // Actualizar datos de un repartidor
-    static async setRepartidores(nombre, telefono, direccion){
+    static async setRepartidores(id, nombre, zona){
         const db = await connection();
-        const coleccion = db.collection('clientes');
+        const coleccion = db.collection('repartidores');
 
         await coleccion.updateOne(
-        { _id: new ObjectId(id) }, // Buscamos el ingrediente por Id
+        { _id: new ObjectId(id) }, // Buscamos el repartidor por Id
         {
             $set: {
                 nombre: nombre,
-                zona: zona,
-                estado: estado    
+                zona: zona
             }
         });
     }

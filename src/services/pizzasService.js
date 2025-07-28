@@ -13,20 +13,19 @@ import { validarTextoNoVacioNiSimbolos, validarNumeroPositivo } from '../utils/v
 async function solictarDatosPizza() {
     //Traer la lista de Ingredientes Actuales
     const ingredientesActuales = await Ingrediente.getIngredientes();
-    console.log("Ingredientes actuales:", ingredientesActuales);
     //Filtrado para ingredientes con stock disponible
     const ingredientesDisponibles = ingredientesActuales
         .filter(ing => ing.stock > 0)
         .map(ing => ({
         name: `${ing.nombre} (${ing.tipo}) - Stock: ${ing.stock}`,
-        value: ing.nombre
+        value: ing._id.toString()
     }));
     const { nombre, categoria, precio, ingredientes } = await inquirer.prompt([
         {
             type: 'input',
             name: 'nombre',
             message: 'Nombre de la Pizza:',
-            validate: validarTextoNoVacio
+            validate: validarTextoNoVacioNiSimbolos
         },
         {
             type: 'list',
